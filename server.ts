@@ -8,7 +8,8 @@ const __dirname = path.dirname(__filename);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
+  const isDev = process.env.NODE_ENV === 'development';
 
   app.use(express.json());
 
@@ -17,16 +18,16 @@ async function startServer() {
     res.json({ status: "ok" });
   });
 
-  // Future AI Agent endpoint for RAG
-  app.post("/api/ai/query", async (req, res) => {
+  // Future query endpoint
+  app.post("/api/query", async (req, res) => {
     const { query, userContext } = req.body;
     
-    // RAG Logic Flow:
+    // Request processing flow:
     // 1. Receive natural language query: "Am I on track for my protein?"
-    // 2. Fetch recent data from Supabase (Daily Intakes, Workout Volume)
+    // 2. Fetch recent data from Firebase (Daily Intakes, Workout Volume)
     // 3. Format as plain text context
-    // 4. Inject into System Instruction
-    // 5. Query Gemini
+    // 4. Inject into system instructions
+    // 5. Query a backend model
     
     const mockContext = `
       USER DATA CONTEXT (Last 7 Days):
@@ -42,8 +43,8 @@ async function startServer() {
     });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== "production") {
+  // Vite middleware for development only
+  if (isDev) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
