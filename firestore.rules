@@ -1,0 +1,113 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isVerified() {
+      return request.auth.token.email_verified == true;
+    }
+
+    // --- User Profile ---
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUserProfile(request.resource.data);
+      allow update: if isOwner(userId) && isValidUserProfile(request.resource.data)
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['height', 'weight', 'age', 'goalWeight', 'goals', 'updatedAt']);
+
+      function isValidUserProfile(data) {
+        return data.height is number && data.weight is number && data.age is number
+               && data.goalWeight is number && data.goals is map
+               && data.goals.kcal is number && data.goals.p is number
+               && data.goals.c is number && data.goals.f is number;
+      }
+
+      // --- Subcollections ---
+      
+      // Food Logs
+      match /food_logs/{logId} {
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidLoggedFood(request.resource.data);
+        allow update: if isOwner(userId) && isValidLoggedFood(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        function isValidLoggedFood(data) {
+          return data.name is string && data.name.size() > 0 && data.kcal is number
+                 && data.date is string && data.macros is map;
+        }
+      }
+
+      // Workouts
+      match /workouts/{workoutId} {
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidWorkoutSession(request.resource.data);
+        allow update: if isOwner(userId) && isValidWorkoutSession(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        function isValidWorkoutSession(data) {
+          return data.date is string && data.planId is string && data.exercises is list;
+        }
+      }
+
+      // Plans
+      match /plans/{planId} {
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidWorkoutPlan(request.resource.data);
+        allow update: if isOwner(userId) && isValidWorkoutPlan(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        function isValidWorkoutPlan(data) {
+          return data.name is string && data.exerciseIds is list;
+        }
+      }
+
+      // Habits
+      match /habits/{habitId} {
+        allow list, get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow update: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow delete: if isOwner(userId);
+
+        function isValidHabit(data) {
+          return data.name is string && data.target is number && data.current is number;
+        }
+      }
+
+      // Steps
+      match /steps/{date} {
+        allow list, get: if isOwner(userId);
+        allow create, update: if isOwner(userId) && request.resource.data.count is number;
+        allow delete: if isOwner(userId);
+      }
+
+      // Food Database
+      match /food_database/{foodId} {
+        allow list, get: if isOwner(userId);
+        allow create, update: if isOwner(userId) && request.resource.data.name is string;
+        allow delete: if isOwner(userId);
+      }
+
+      // Exercise Templates
+      match /exercise_templates/{templateId} {
+        allow list, get: if isOwner(userId);
+        allow create, update: if isOwner(userId) && request.resource.data.name is string;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}

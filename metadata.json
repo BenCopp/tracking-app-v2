@@ -1,0 +1,6 @@
+{
+  "name": "Easy Tracking App",
+  "description": "A high-performance personal fitness, nutrition, and habit tracking mobile app.",
+  "requestFramePermissions": ["notifications"],
+  "majorCapabilities": ["fitnessTracking", "nutritionTracking", "habitTracking", "aiAgent"]
+}

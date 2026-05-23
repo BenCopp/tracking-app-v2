@@ -1,0 +1,181 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User profile settings and goals",
+      "type": "object",
+      "properties": {
+        "height": { "type": "number" },
+        "weight": { "type": "number" },
+        "age": { "type": "number" },
+        "goalWeight": { "type": "number" },
+        "goals": {
+          "type": "object",
+          "properties": {
+            "kcal": { "type": "number" },
+            "p": { "type": "number" },
+            "c": { "type": "number" },
+            "f": { "type": "number" }
+          }
+        },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "LoggedFood": {
+      "title": "LoggedFood",
+      "description": "A food item logged by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "quantity": { "type": "string" },
+        "kcal": { "type": "number" },
+        "icon": { "type": "string" },
+        "macros": {
+          "type": "object",
+          "properties": {
+            "p": { "type": "number" },
+            "c": { "type": "number" },
+            "f": { "type": "number" }
+          }
+        },
+        "date": { "type": "string", "format": "date" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "kcal", "date"]
+    },
+    "WorkoutSession": {
+      "title": "WorkoutSession",
+      "description": "A recorded workout session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string", "format": "date-time" },
+        "planId": { "type": "string" },
+        "exercises": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "exerciseId": { "type": "string" },
+              "sets": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "weight": { "type": "number" },
+                    "reps": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "WorkoutPlan": {
+      "title": "WorkoutPlan",
+      "description": "A workout routine template",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "exerciseIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "A daily habit tracked by the user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "icon": { "type": "string" },
+        "color": { "type": "string" },
+        "target": { "type": "number" },
+        "current": { "type": "number" },
+        "unit": { "type": "string" },
+        "notifyInterval": { "type": "number" },
+        "notificationsActive": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "ExerciseEntry": {
+      "title": "ExerciseEntry",
+      "description": "An exercise template",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" }
+      }
+    },
+    "DailySteps": {
+      "title": "DailySteps",
+      "description": "Step count for a specific date",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string", "format": "date" },
+        "count": { "type": "number" }
+      }
+    },
+    "Food": {
+      "title": "Food",
+      "description": "Custom food item in the user's database",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "baseWeight": { "type": "number" },
+        "baseKcal": { "type": "number" },
+        "baseMacros": {
+          "type": "object",
+          "properties": {
+            "p": { "type": "number" },
+            "c": { "type": "number" },
+            "f": { "type": "number" }
+          }
+        },
+        "icon": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile and settings"
+    },
+    "/users/{userId}/food_logs/{logId}": {
+      "schema": "LoggedFood",
+      "description": "Daily food entries"
+    },
+    "/users/{userId}/workouts/{workoutId}": {
+      "schema": "WorkoutSession",
+      "description": "Individual workout sessions"
+    },
+    "/users/{userId}/plans/{planId}": {
+      "schema": "WorkoutPlan",
+      "description": "Custom workout plans"
+    },
+    "/users/{userId}/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "User tracked habits"
+    },
+    "/users/{userId}/steps/{date}": {
+      "schema": "DailySteps",
+      "description": "Step count records"
+    },
+    "/users/{userId}/food_database/{foodId}": {
+      "schema": "Food",
+      "description": "Personal food library"
+    },
+    "/users/{userId}/exercise_templates/{templateId}": {
+      "schema": "ExerciseEntry",
+      "description": "Custom exercise templates"
+    }
+  }
+}
