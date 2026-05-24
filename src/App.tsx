@@ -76,10 +76,7 @@ export default function App() {
   const [exerciseTemplates, setExerciseTemplates] = useState<ExerciseEntry[]>(INITIAL_EXERCISES);
   const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_PROFILE);
   const [dailySteps, setDailySteps] = useState<DailySteps[]>([]);
-  const [selectedNutritionDate, setSelectedNutritionDate] = useState<string>(() => {
-    const d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  });
+  const [selectedNutritionDate, setSelectedNutritionDate] = useState<string>(new Date().toISOString().split('T')[0]);
 
   // Firebase Synchronization
   useEffect(() => {

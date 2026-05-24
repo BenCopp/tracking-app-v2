@@ -178,7 +178,7 @@ export default function DashboardView({
   const consistencyData = getConsistencyHistory();
   
   // Nutrition Summary for Today
-  const todayDate = new Date().getFullYear() + '-' + String(new Date().getMonth() + 1).padStart(2, '0') + '-' + String(new Date().getDate()).padStart(2, '0');
+  const todayDate = new Date().toISOString().split('T')[0];
   const todayLogs = loggedFoods.filter(l => l.date.startsWith(todayDate));
   const todayMacros = todayLogs.reduce((acc, curr) => ({
     p: acc.p + curr.macros.p,
