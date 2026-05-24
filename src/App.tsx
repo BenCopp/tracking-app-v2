@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   Loader2
 } from 'lucide-react';
-import { cn } from './lib/utils';
+import { cn, normalizeV1Date } from './lib/utils';
 import { Habit, Food, LoggedFood, WorkoutSession, UserProfile, WorkoutPlan, ExerciseEntry, DailySteps } from './types';
 import { auth, db } from './lib/firebase';
 import { 
@@ -76,7 +76,10 @@ export default function App() {
   const [exerciseTemplates, setExerciseTemplates] = useState<ExerciseEntry[]>(INITIAL_EXERCISES);
   const [userProfile, setUserProfile] = useState<UserProfile>(INITIAL_PROFILE);
   const [dailySteps, setDailySteps] = useState<DailySteps[]>([]);
-  const [selectedNutritionDate, setSelectedNutritionDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedNutritionDate, setSelectedNutritionDate] = useState<string>(() => {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  });
 
   // Firebase Synchronization
   useEffect(() => {
@@ -94,7 +97,10 @@ export default function App() {
     }, (err) => handleFirestoreError(err, OperationType.GET, `users/${uid}/food_database`));
 
     const unsubLogged = onSnapshot(collection(db, 'users', uid, 'food_logs'), (s) => {
-      setLoggedFoods(s.docs.map(d => ({ ...d.data(), id: d.id } as LoggedFood)));
+      setLoggedFoods(s.docs.map(d => {
+        const data = d.data() as LoggedFood;
+        return { ...data, id: d.id, date: normalizeV1Date(data.date) };
+      }));
     }, (err) => handleFirestoreError(err, OperationType.GET, `users/${uid}/food_logs`));
 
     const unsubWorkouts = onSnapshot(query(collection(db, 'users', uid, 'workouts'), orderBy('date', 'desc')), (s) => {

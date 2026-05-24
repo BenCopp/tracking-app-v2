@@ -154,7 +154,7 @@ export default function NutritionView({
       d.setDate(endDate.getDate() - i);
       days.push({
         label: d.toLocaleDateString('en-US', { weekday: 'short' }),
-        date: d.toISOString().split('T')[0],
+        date: getLocalDateString(d),
         day: d.getDate()
       });
     }
